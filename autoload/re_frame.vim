@@ -25,6 +25,31 @@ endfunction "}}}
 " }}} Backend
 
 
+" Compatibility: {{{
+
+let s:compat_fns = {}
+
+if exists('*slice')
+  let s:slice = function('slice')
+else
+  function! s:compat_fns.slice(...)
+    return call('re_frame#compatibility#slice', a:000)
+  endfunction
+  let s:slice = s:compat_fns.slice
+endif
+
+if exists('*matchfuzzy')
+  let s:matchfuzzy = function('matchfuzzy')
+else
+  function! s:compat_fns.matchfuzzy(...)
+    return call('re_frame#compatibility#matchfuzzy', a:000)
+  endfunction
+  let s:matchfuzzy = s:compat_fns.matchfuzzy
+endif
+
+" }}} Compatibility
+
+
 " Main Functions: {{{
 
 function! re_frame#complete_db(ks, lead) abort "{{{
@@ -39,7 +64,7 @@ function! re_frame#complete_db(ks, lead) abort "{{{
   let lines = re_frame#backend('eval_to_list', code)
 
   if !empty(a:lead)
-    let lines = matchfuzzy(lines, a:lead)
+    let lines = s:matchfuzzy(lines, a:lead)
   endif
   let lines = sort(lines)
   return lines
@@ -100,7 +125,7 @@ function! re_frame#complete(lead, line, pos) abort "{{{
     return commands
   endif
 
-  let subcmd = matchfuzzy(commands, segs[1])
+  let subcmd = s:matchfuzzy(commands, segs[1])
 
   if len(subcmd) == 0
     return []
@@ -121,7 +146,7 @@ function! re_frame#complete(lead, line, pos) abort "{{{
     let candidates = re_frame#get_handlers(subcmd)
 
     if !empty(a:lead)
-      let candidates = matchfuzzy(candidates, a:lead)
+      let candidates = s:matchfuzzy(candidates, a:lead)
     endif
     return sort(candidates)
   elseif subcmd == 'db'
@@ -137,7 +162,7 @@ endfunction "}}}
 function! re_frame#do(cmd, ...) abort "{{{
   let commands = ['sub', 'event', 'fx', 'db']
 
-  let cmd = matchfuzzy(commands, a:cmd)
+  let cmd = s:matchfuzzy(commands, a:cmd)
   if len(cmd) == 1
     let cmd = cmd[0]
     let id = a:1
@@ -168,15 +193,15 @@ function! re_frame#do(cmd, ...) abort "{{{
       " Get the db value
       " Or set value with trailing ` = xxx` arguments
       let ks = copy(a:000)
-      if index(slice(a:000, a:0 - 2), '=') > -1
+      if index(s:slice(a:000, a:0 - 2), '=') > -1
         if a:000[-1] == '='
           let code = printf(
                 \ '(do (swap! re-frame.db/app-db #(assoc-in %% [%s] nil)) nil)',
-                \ join(slice(ks, 0, -1), ' '))
+                \ join(s:slice(ks, 0, -1), ' '))
         else
           let code = printf(
                 \ '(do (swap! re-frame.db/app-db #(assoc-in %% [%s] %s)) %s)',
-                \ join(slice(ks, 0, -2),' '),
+                \ join(s:slice(ks, 0, -2),' '),
                 \ a:000[-1],
                 \ a:000[-1])
         endif

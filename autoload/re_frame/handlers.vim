@@ -68,9 +68,9 @@ function! s:shorten_handler_by_ns(ns, kind, _idx, id) abort "{{{
   endif
 
   if strpart(ns, 0, db_ns_len + 1) == a:ns . '.'
-    let id = '~' . slice(id, db_ns_len + 1)
+    let id = '~' . id[db_ns_len + 1:]
     if strpart(id, 1, len(shorten) + 1) == shorten . '/'
-      let id = '.' . slice(id, len(shorten) + 2)
+      let id = '.' . id[len(shorten) + 2:]
     endif
   endif
 
