@@ -1,3 +1,5 @@
+let s:complete_cache = {}
+
 " Backend: {{{
 
 function! re_frame#backend(fn, ...) abort "{{{
@@ -26,12 +28,44 @@ endfunction "}}}
 " Main Functions: {{{
 
 function! re_frame#complete_db(ks, lead) abort "{{{
-  return re_frame#backend('complete_db', a:ks, a:lead)
+  let code = printf(
+        \ '(let [o (get-in @re-frame.db/app-db [%s])]' .
+        \ '  (cond (vector? o) (-> o count range)' .
+        \ '        (map? o)    (keys o)' .
+        \ '        :else       nil)' .
+        \ ')',
+        \ join(a:ks, ' '))
+
+  let lines = re_frame#backend('eval_to_list', code)
+
+  if !empty(a:lead)
+    let lines = matchfuzzy(lines, a:lead)
+  endif
+  let lines = sort(lines)
+  return lines
 endfunction "}}}
 
 
 function! re_frame#get_handlers(kind) abort "{{{
-  return re_frame#backend('get_handlers', a:kind)
+  autocmd vim_re_frame CmdlineLeave <buffer> ++once let s:complete_cache = {}
+
+  let lines = get(s:complete_cache, a:kind)
+  if !empty(lines)
+    return lines
+  endif
+
+  let code = printf('(keys (re-frame.registrar/get-handler :%s))', a:kind)
+  let lines = re_frame#backend('eval_to_list', code)
+  let lines = sort(lines)
+
+  let tx = get(g:, 're_frame#handler_candidates_transform')
+  if index([v:t_func, v:t_string], type(tx)) > -1
+    call call(tx, [lines, a:kind])
+  endif
+
+  let s:complete_cache[a:kind] = lines
+
+  return lines
 endfunction "}}}
 
 
