@@ -11,28 +11,28 @@ Helpers for [re-frame][].
 
 1. `sub` - Get subscription value
 
-  ```vim
-  :ReFrame sub :i18n/locale
-  ```
+    ```vim
+    :ReFrame sub :i18n/locale
+    ```
 
 2. `event` - Dispatch event
 
-  ```vim
-  :ReFrame event :submit-form
-  ```
+    ```vim
+    :ReFrame event :submit-form
+    ```
 
 3. `fx` - Call effect function
 
-  ```vim
-  :ReFrame fx :reload-page!
-  ```
+    ```vim
+    :ReFrame fx :reload-page!
+    ```
 
-4. `db` - Read/Write app-db value
+4. `db` - Read/write app-db value
 
-  ```vim
-  :ReFrame db :foo :items 0 :color
-  :ReFrame db :foo :items 0 :color = "red"
-  ```
+    ```vim
+    :ReFrame db :foo :items 0 :color
+    :ReFrame db :foo :items 0 :color = "red"
+    ```
 
 
 
@@ -84,16 +84,21 @@ let g:re_frame#handler_candidates_restore   = 're_frame#handlers#candidates_rest
   This can be set to a Function or String (function name), too.  
   Takes `(id, kind)` arguments.
 
-The two built-in autoload functions
-`re_frame#handlers#candidates_transform`  
-`re_frame#handlers#candidates_restore`  
-reduce the candidates by finding current namespace, for example if you
-structure your code in small scopes each has its own re-frame db/subs/event
-along, we leave only handlers belong to nearest scoped ns.
+The two built-in autoload functions:
+
+- `re_frame#handlers#candidates_transform`
+- `re_frame#handlers#candidates_restore`
+
+reduce candidates by finding current namespace, for example if you structure
+your code in small scopes each has its own re-frame db/subs/event along, they
+leave only handlers belong to nearest scoped ns.
 
 For example, it shortens
+
     :my.company.b2b.some-page.subs/some-field
+
 to
+
     .some-field             (when nearest ns is `:my.company.b2b.some-page`)
     ~some-page.some-field   (when nearest ns is `:my.company.b2b`)
 
@@ -104,7 +109,7 @@ to
 
   Have to communicate with CLJS REPL, currently supports:
 
-  - [liquidz/vim-iced][vim-iced], see [vim-iced-shadow-cljs][]
+  - [liquidz/vim-iced][vim-iced], see its instruction connecting cljs [here][vim-iced-shadow-cljs].
   - [tpope/vim-fireplace][vim-fireplace]
 
   Welcome contribution for other backends.
@@ -112,9 +117,9 @@ to
 
 - Vim version
 
-  It is suggested to use newer vim version.
+  It is suggested to use newer versions.
 
-  Command line complete uses `matchfuzzy()` (introduced Vim 8.2.1665, Neovim PR#12995 await).
+  Command line completion uses `matchfuzzy()` (introduced Vim 8.2.1665, Neovim PR#12995 await).
 
   Without built-in implementation we might use downgrade fallback.
 
