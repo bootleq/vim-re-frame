@@ -4,6 +4,7 @@ endif
 let g:loaded_re_frame = 1
 
 
+" let g:re_frame#backend = 'iced'
 " let g:re_frame#handler_candidates_transform = 're_frame#handlers#candidates_transform'
 " let g:re_frame#handler_candidates_restore = 're_frame#handlers#candidates_restore'
 

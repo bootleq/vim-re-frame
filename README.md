@@ -42,13 +42,13 @@ Configuration
 
 ### Prefered backend
 
-- `g:re_frame_backend`
+- `g:re_frame#backend`
 
 There is a detection to pick nREPL backend (e.g., [vim-iced][] or [vim-fireplace][]),
 you can set a fixed value to bypass the detection.
 
 ```vim
-let g:re_frame_backend = 'iced'
+let g:re_frame#backend = 'iced'
 ```
 
 The value can be one of `iced`, `fireplace`.

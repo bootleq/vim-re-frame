@@ -3,7 +3,7 @@ let s:complete_cache = {}
 " Backend: {{{
 
 function! re_frame#backend(fn, ...) abort "{{{
-  let backend = get(g:, 're_frame_backend')
+  let backend = get(g:, 're_frame#backend')
   if empty(backend)
     if exists(':IcedEval')
       let backend = 'iced'
