@@ -5,8 +5,8 @@ Helpers for [re-frame][].
 
 
 
-Current Features
-================
+Current Feature
+===============
 
 `:ReFrame` command to
 
@@ -40,6 +40,22 @@ Current Features
 Configuration
 =============
 
+### Prefered backend
+
+- `g:re_frame_backend`
+
+There is a detection to pick nREPL backend (e.g., [vim-iced][] or [vim-fireplace][]),
+you can set a fixed value to bypass the detection.
+
+```vim
+let g:re_frame_backend = 'iced'
+```
+
+The value can be one of `iced`, `fireplace`.
+
+
+### Candidates filter
+
 The `:ReFrame` command's auto completion might have candidates too long, you
 can set filter and formatter to shorten it.
 
@@ -58,6 +74,7 @@ let g:re_frame#handler_candidates_restore   = 're_frame#handlers#candidates_rest
 
   For example `event` sub command will get a list from
   `(re-frame.registrar/get-handler :event)`.
+
   You can do filter / map on the List (Vim mutates List in place, so return
   value is not used here).
 
@@ -69,28 +86,45 @@ let g:re_frame#handler_candidates_restore   = 're_frame#handlers#candidates_rest
   This can be set to a Function or String (function name), too.  
   Takes `(id, kind)` arguments.
 
-The two autoload functions
-`re_frame#handlers#candidates_transform`
-`re_frame#handlers#candidates_restore`
+The two built-in autoload functions
+`re_frame#handlers#candidates_transform`  
+`re_frame#handlers#candidates_restore`  
 reduce the candidates by finding current namespace, for example if you
 structure your code in small scopes each has its own re-frame db/subs/event
-along, we leave only handlers belong to nearest scoped ns. 
+along, we leave only handlers belong to nearest scoped ns.
+
+For example, it shortens
+    :my.company.b2b.some-page.subs/some-field
+to
+    .some-field             (when nearest ns is `:my.company.b2b.some-page`)
+    ~some-page.some-field   (when nearest ns is `:my.company.b2b`)
 
 
+Prerequisites
+=============
 
-Dependency
-==========
+- nREPL backend
 
-- [liquidz/vim-iced][vim-iced]
+  Have to communicate with CLJS REPL, currently supports:
 
-Require it to communicate with nREPL.
+  - [liquidz/vim-iced][vim-iced], see [vim-iced-shadow-cljs][]
+  - [tpope/vim-fireplace][vim-fireplace]
 
-You have to connect to CLJS REPL first, see [vim-iced-shadow-cljs][].
+  Welcome contribution for other backends.
+    
 
-Welcome contribution for other backend support.
+- Vim version
+
+  It is suggested to use newer vim version.
+
+  Command line complete uses `matchfuzzy()` (introduced Vim 8.2.1665, Neovim PR#12995 await).
+
+  Without built-in implementation we might use downgrade fallback.
+
   
 
 
 [re-frame]: https://github.com/day8/re-frame
 [vim-iced]: https://github.com/liquidz/vim-iced
 [vim-iced-shadow-cljs]: https://liquidz.github.io/vim-iced/#clojurescript_shadow_cljs
+[vim-fireplace]: https://github.com/tpope/vim-fireplace
