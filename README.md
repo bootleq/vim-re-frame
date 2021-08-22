@@ -5,8 +5,7 @@ Helpers for [re-frame][].
 
 
 
-Current Feature
-===============
+## Current Feature
 
 `:ReFrame` command to
 
@@ -37,8 +36,7 @@ Current Feature
 
 
 
-Configuration
-=============
+## Configuration
 
 ### Prefered backend
 
@@ -100,8 +98,7 @@ to
     ~some-page.some-field   (when nearest ns is `:my.company.b2b`)
 
 
-Prerequisites
-=============
+## Prerequisites
 
 - nREPL backend
 
