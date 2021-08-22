@@ -1,66 +1,37 @@
-let s:iced_re_frame_complete_cache = {}
-
-
 " Backend: {{{
-" TODO: support backends other than vim-iced
+
+function! re_frame#backend(fn, ...) abort "{{{
+  let backend = get(g:, 're_frame_backend')
+  if empty(backend)
+    if exists(':IcedEval')
+      let backend = 'iced'
+    elseif exists(':CljsEval')
+      let backend = 'fireplace'
+    endif
+  endif
+
+  if empty(backend)
+    echoerr "vim_re_frame: no supported backend."
+    return
+  endif
+
+  return call(
+        \ printf('re_frame#backend#%s#%s', backend, a:fn),
+        \ a:000)
+endfunction "}}}
+
 " }}} Backend
 
 
 " Main Functions: {{{
 
 function! re_frame#complete_db(ks, lead) abort "{{{
-  let code = printf(
-        \ '(clojure.string/join "\n" ' .
-        \ '  (let [o (get-in @re-frame.db/app-db [%s])]' .
-        \ '    (cond (vector? o) (-> o count range)' .
-        \ '          (map? o)    (keys o)' .
-        \ '          :else       nil)' .
-        \ '))',
-        \ join(a:ks, ' '))
-
-  let resp = iced#nrepl#sync#eval(code)
-  if has_key(resp, 'value')
-    let string = resp['value'][1:-2]
-    let lines = split(string, '\\n')
-    if !empty(a:lead)
-      let lines = matchfuzzy(lines, a:lead)
-    endif
-    let lines = sort(lines)
-    return lines
-  else
-    echohl ErrorMsg | echomsg "[Eval] " . resp['err'] | echohl None
-  endif
-
-  return []
+  return re_frame#backend('complete_db', a:ks, a:lead)
 endfunction "}}}
 
 
 function! re_frame#get_handlers(kind) abort "{{{
-  autocmd vim_re_frame CmdlineLeave <buffer> ++once let s:iced_re_frame_complete_cache = {}
-
-  let lines = get(s:iced_re_frame_complete_cache, a:kind)
-  if !empty(lines)
-    return lines
-  endif
-
-  let code = printf('(clojure.string/join "\n" (keys (re-frame.registrar/get-handler :%s)))', a:kind)
-  let resp = iced#nrepl#sync#eval(code)
-  if has_key(resp, 'value')
-    let string = resp['value'][1:-2]
-    let lines = split(string, '\\n')
-    let lines = sort(lines)
-    let s:iced_re_frame_complete_cache[a:kind] = lines
-
-    let tx = get(g:, 're_frame#handler_candidates_transform')
-    if index([v:t_func, v:t_string], type(tx)) > -1
-      call call(tx, [lines, a:kind])
-    endif
-
-    return lines
-  else
-    echohl ErrorMsg | echomsg "[Eval] " . resp['err'] | echohl None
-    return []
-  endif
+  return re_frame#backend('get_handlers', a:kind)
 endfunction "}}}
 
 
@@ -180,7 +151,7 @@ function! re_frame#do(cmd, ...) abort "{{{
       endif
     endif
 
-    execute 'IcedEval ' . code
+    call re_frame#backend('eval', code)
   else
     echohl ErrorMsg | echomsg "Unknown command for " .a:cmd | echohl None
   endif
